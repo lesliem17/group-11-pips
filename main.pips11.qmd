@@ -13,7 +13,39 @@ editor: visual
 
 # Introduction
 
-Insert small explanation of what the data set is (add hypotheses here or before each analyses?)
+This section introduces the project, its dataset, and the questions guiding the analyses. The content is currently a work in progress
+
+::: panel-tabset
+
+## Background and Relevance
+Student life is often the first time when people start living alone and organizing life themselves. With new environments and new responsibilities come new challenges. Therefore, we deem it necessary to assess the connections of student habits, performance, and mental wellbeing in order to set some stepping stones for further investigations into ideal student life balances.
+
+## Dataset
+The Dataset was taken from Kaggle (https://www.kaggle.com/datasets/mdismielhossenabir/psychosocial-dimensions-of-student-life) and was published by Md. Ismiel Hossen Abier. 
+
+The sample consists of 100 **(later we say 99, which is it?)** computer science students who self-reported a number of social and mental health variables.
+
+## Research Questions
+The research questions of the two overarching analysis topics are:
+H1a:
+ H1b:
+H2a:
+ H2b:
+
+
+## Overview of the Report
+The report first outlines some demographic student variables in order to provide a contextual frame for interpreting this data.
+Then, self-reported habits and the students' performance are mapped onto each other.
+
+There are two main section of analyses completed.
+
+1. **Sleep and Mental Wellbeing**
+In which the sample's sleep duration (in hours) and Depression status are demonstrated. 
+Additionally, we examined whether daily sleep duration varied according to students’ self-reported academic performance.
+2. **Students' Social Life**
+In which the number of friends and individual preferences (liking presentations, liking new things) are demonstrated. 
+Additionally, we mapped the relationships between the social variables, and created the variable "Extraversion" as a further means for analysis.
+:::
 
 # Data overview
 
@@ -23,6 +55,8 @@ Insert small explanation of what the data set is (add hypotheses here or before 
 #| message: false
 #| warning: false
 ```
+
+::: panel-tabset
 
 ## Loading data
 ```{r}
@@ -38,8 +72,10 @@ library(ggstatsplot)
 library(viridis)
 library(rstatix)
 ```
+::: 
 
 ## Student Profile
+
 ::: panel-tabset
 ### Student Age, visible by Gender
 The following plot demonstrates the student ages within the sample.
@@ -133,79 +169,52 @@ student_demo_plot <- student_demo_plot %>%
 student_demo_plot
 ```
 
-### Depression Status
-The following plot visualizes the Depression status (yes = depression present, sometimes = occasional depressive mood, no = no depression present) within the student sample.
+### Gender Composition
 ```{r}
-depression_column <- "DepressionStatus"
 
-depression_data <- reports %>%
-  filter(!is.na(.data[[depression_column]])) %>%
-  count(Response = .data[[depression_column]],
-        name = "Students") %>%
+### Gender Composition
+#| fig-width: 8
+#| fig-height: 5
+
+# Summarise the gender composition
+gender_data <- reports %>%
+  filter(!is.na(Gender)) %>%
+  mutate(Gender = trimws(as.character(Gender))) %>%
+  count(Gender, name = "Students") %>%
   mutate(
-    Percentage = 100 * Students / sum(Students)
+    Percentage = 100 * Students / sum(Students),
+    Label = paste0(
+      Students, " (", round(Percentage, 1), "%)"
+    )
   )
 
-plot_ly(
-  data = depression_data,
-  x = ~Response,
-  y = ~Students,
-  type = "bar",
-  marker = list(
-    color = viridis(nrow(depression_data), option = "D"),
-    line = list(color = "white", width = 1)
-  ),
-  customdata = ~Percentage,
-  hovertemplate = paste(
-    "Response: %{x}",
-    "<br>Students: %{y}",
-    "<br>Percentage: %{customdata:.1f}%",
-    "<extra></extra>"
+# Create the bar chart
+ggplot(gender_data,
+       aes(x = reorder(Gender, -Students),
+           y = Students,
+           fill = Gender)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  geom_text(
+    aes(label = Label),
+    vjust = -0.5,
+    size = 4
+  ) +
+  scale_fill_viridis_d(option = "D", end = 0.9) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.15))
+  ) +
+  labs(
+    title = "Gender Composition of the Student Sample",
+    subtitle = "Number and percentage of students in each category",
+    x = "Gender",
+    y = "Number of students",
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(face = "bold")
   )
-) %>%
-  layout(
-    title = "Student Depression Status",
-    xaxis = list(title = "Reported Status"),
-    yaxis = list(title = "Number of Students"),
-    template = "plotly_white",
-    margin = list(t = 70, b = 90)
-  )
-
-```
-
-### Sleep Duration
-The following plot demonstrates the students' sleep duration (in hours).
-
-```{r}
-sleep_data <- reports %>%
-  filter(!is.na(SleepPerDayHours))
-
-plot_ly(
-  data = sleep_data,
-  x = ~SleepPerDayHours,
-  type = "histogram",
-  xbins = list(size = 1),
-  marker = list(
-    color = viridis(5, option = "D")[3],
-    line = list(color = "white", width = 1)
-  ),
-  hovertemplate = paste(
-    "Sleep duration: %{x} hours",
-    "<br>Number of students: %{y}",
-    "<extra></extra>"
-  )
-) %>%
-  layout(
-    title = "How Many Hours Do Students Sleep?",
-    xaxis = list(
-      title = "Hours of Sleep per Day",
-      dtick = 1
-    ),
-    yaxis = list(title = "Number of Students"),
-    template = "plotly_white",
-    margin = list(t = 70, b = 60)
-  )
-
 ```
 :::
 
@@ -294,6 +303,7 @@ animated_figure <- plot_ly(
 animated_figure
 
 ```
+**interpretation**: 
 
 ### Depression Status and Academic Performance
 
@@ -352,6 +362,7 @@ depression_plot <- plot_ly(
 depression_plot
 
 ```
+**interpretation** 
 
 ### Challenges in completing Academic Tasks
 
@@ -434,6 +445,7 @@ challenge_plot <- plot_ly(
 
 challenge_plot
 ```
+**interpretation**
 
 ### Challenges in completing Academic tasks and performance
 The above demonstarted academic task challenges plotted in relation to academic performance.
@@ -549,6 +561,8 @@ plot_ly(
 
 
 ```
+**interpretation**
+
 :::
 # Analysis 1 - Sleep and Mental Well being
 

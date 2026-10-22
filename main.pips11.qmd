@@ -34,7 +34,7 @@ read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%
 The sample consists of 99 computer science students who self-reported a number of social and mental health variables.
 
 ## Overview and Research Questions
-The report first outlines some demographic student variables in order to provide a contextual frame for interpreting this data.
+Our project first outlines some demographic student variables in order to provide a contextual frame for interpreting this data.
 Then, self-reported habits and the students' performance are mapped onto each other.
 
 There are two main section of analyses completed.

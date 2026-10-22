@@ -13,7 +13,7 @@ editor: visual
 
 # Introduction
 
-This section introduces the project, its dataset, and the questions guiding the analyses. The content is currently a work in progress
+This section introduces the project, its dataset, and the questions guiding the analyses. 
 
 ::: panel-tabset
 
@@ -21,9 +21,15 @@ This section introduces the project, its dataset, and the questions guiding the 
 Student life is often the first time when people start living alone and organizing life themselves. With new environments and new responsibilities come new challenges. Therefore, we deem it necessary to assess the connections of student habits, performance, and mental wellbeing in order to set some stepping stones for further investigations into ideal student life balances.
 
 ## Dataset
-The Dataset was taken from [Kaggle](https://www.kaggle.com/datasets/mdismielhossenabir/psychosocial-dimensions-of-student-life)
+The Dataset was found on  [Kaggle](https://www.kaggle.com/datasets/mdismielhossenabir/psychosocial-dimensions-of-student-life)
 and published by Md. Ismiel Hossen Abier. It is titled
 *Psychosocial Dimensions of Student Life*.
+
+The extracted code can be found through zenodo, and extracted via the r code below.
+```{r}
+#| output: false
+read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%281%29.csv")
+```
 
 The sample consists of 99 computer science students who self-reported a number of social and mental health variables.
 
@@ -65,8 +71,8 @@ There are two main section of analyses completed.
    **RQ:** How do reported friendship counts differ across combinations of preferences for presentations and new things?
 
    - **Hypotheses:**
-     - H₀: Friendship counts and preferences for presentations and new things are not associated with self-reported academic performance.
-     - H₁: Students with more friends and who like presentations and new things will tend to report higher academic performance.
+     - H₀: Students who like to give presentations and new things will NOT have more friends than other students. 
+     - H₁: Students who like both giving presentations and new things will have more friends than those who do not. 
 
 ::: 
 
@@ -97,7 +103,15 @@ if (nrow(reports) == 0) {
 required_columns <- c(
   "SleepPerDayHours",
   "AcademicPerformance",
-  "DepressionStatus"
+  "DepressionStatus",
+  "Age",
+  "Gender",
+  "TakingNoteInClass",
+  "FaceChallangesToCompleteAcademicTask",
+  "LikePresentation",
+  "SleepPerDayHours",
+  "NumberOfFriend",
+  "LikeNewThings"
 )
 
 missing_columns <- setdiff(
@@ -342,9 +356,6 @@ Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
 The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
 
 ```{r}
-library(dplyr)
-library(plotly)
-
 # Counting number of students in each combination
 habit_data <- reports %>%
   filter(
@@ -399,7 +410,6 @@ animated_figure <- plot_ly(
   animation_slider()
 
 animated_figure
-
 ```
 **Interpretation:**
 The chart indicates that students vary within groups and also between groups in their note taking habits. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking.

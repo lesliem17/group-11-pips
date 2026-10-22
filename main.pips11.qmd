@@ -13,14 +13,125 @@ editor: visual
 
 # Introduction
 
-Insert small explanation of what the data set is (add hypotheses here or before each analyses?)
+This section introduces the project, its dataset, and the questions guiding the analyses. 
+
+::: panel-tabset
+
+## Background and Relevance
+Student life is often the first time when people start living alone and organizing life themselves. With new environments and new responsibilities come new challenges. Therefore, we deem it necessary to assess the connections of student habits, performance, and mental wellbeing in order to set some stepping stones for further investigations into ideal student life balances.
+
+## Dataset
+The Dataset was found on  [Kaggle](https://www.kaggle.com/datasets/mdismielhossenabir/psychosocial-dimensions-of-student-life)
+and published by Md. Ismiel Hossen Abier. It is titled
+*Psychosocial Dimensions of Student Life*.
+
+The extracted code can be found through zenodo, and extracted via the r code below.
+```{r}
+#| output: false
+read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%281%29.csv")
+```
+
+The sample consists of 99 computer science students who self-reported a number of social and mental health variables.
+
+## Overview and Research Questions
+Our project first outlines some demographic student variables in order to provide a contextual frame for interpreting this data.
+Then, self-reported habits and the students' performance are mapped onto each other.
+
+There are two main section of analyses completed.
+
+1. **Sleep and Mental Wellbeing**
+
+   In which the sample's sleep duration (in hours) and Depression status are demonstrated by asking the following questions.
+
+   - How much do students sleep?
+   - How do students report their depression status?
+
+   **RQ1:** Is daily sleep duration associated with self-reported academic performance among students?
+
+   - **Hypotheses:**
+     - H₀: Sleep duration does not differ systematically across the four academic performance groups.
+     - H₁: Sleep duration differs across at least two academic performance groups.
+
+   **RQ2:** Is daily sleep duration associated with self-reported depression status among students?
+
+   - **Hypotheses:**
+     - H₀: Sleep duration does not differ systematically between the depression-status groups.
+     - H₁: Sleep duration differs across at least two depression-status groups.
+
+2. **Students' Social Life**
+
+   In which the following questions are answered based on analyses of students' self-report answers.
+
+   - How many friends do students have?
+   - Do students like giving presentations?
+   - Do students like new things?
+
+   Additionally, we mapped the relationships between the three social variables mentioned right above this.
+
+   **RQ:** How do reported friendship counts differ across combinations of preferences for presentations and new things?
+
+   - **Hypotheses:**
+     - H₀: Students who like to both give presentations and new things will NOT have more friends than other students. 
+     - H₁: Students who like to both give presentations and new things will have more friends than those who do not.
+
+::: 
 
 # Data overview
 
+
+```{r}
+#| echo: true
+#| output: false
+#| message: false
+#| warning: false
+```
+
+::: panel-tabset
+
 ## Loading data
+Paste and run the following code to obtain the dataset and add it to the environment under the name "reports". This is important because it will be referred to as "reports" throughout the document.
+
+## Loading data
+
 
 ```{r}
 reports <- read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%281%29.csv")
+
+# Error checks for the dataset
+
+stopifnot(exists("reports"))
+
+if (nrow(reports) == 0) {
+  stop("Error: The dataset contains no rows.")
+}
+
+required_columns <- c(
+  "SleepPerDayHours",
+  "AcademicPerformance",
+  "DepressionStatus",
+  "Age",
+  "Gender",
+  "TakingNoteInClass",
+  "FaceChallangesToCompleteAcademicTask",
+  "LikePresentation",
+  "SleepPerDayHours",
+  "NumberOfFriend",
+  "LikeNewThings"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(reports)
+)
+
+if (length(missing_columns) > 0) {
+  stop(
+    paste(
+      "Error: Missing columns:",
+      paste(missing_columns, collapse = ", ")
+    )
+  )
+}
 ```
 
 ## Libraries
@@ -39,21 +150,32 @@ library(ggstatsplot)
 library(viridis)
 library(rstatix)
 ```
+::: 
 
 ## Student Profile
 
 ::: panel-tabset
 ### Student Age, visible by Gender
 
+The following plot demonstrates the student ages within the sample.
+The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
+The x-axis shows age, whereas the y-axis shows the number of students per age group.
+
+
 The following plot demonstrates the student ages within the sample. The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
 
+
 ```{r}
+#| warning: false
 age_data <- reports %>%
   filter(!is.na(Age), !is.na(Gender))
 
 age_min <- floor(min(age_data$Age))
 age_max <- ceiling(max(age_data$Age))
 bin_size <- 1
+
+mean_age <- mean(age_data$Age, na.rm = TRUE)
+median_age <- median(age_data$Age, na.rm = TRUE)
 
 # Assorting groups shown in the dropdown
 groups <- c("All students", unique(as.character(age_data$Gender)))
@@ -96,15 +218,65 @@ for (i in seq_along(groups)) {
 }
 
 # Adding dropdown menu
-visibility <- lapply(seq_along(groups), function(i) {
-  as.list(seq_along(groups) == i)
+# Each group has a histogram, mean line, and median line
+
+# Calculate mean and median for each group
+group_stats <- lapply(groups, function(group_name) {
+  group_data <- if (group_name == "All students") {
+    age_data
+  } else {
+    filter(age_data, as.character(Gender) == group_name)
+  }
+
+  list(
+    mean = mean(group_data$Age, na.rm = TRUE),
+    median = median(group_data$Age, na.rm = TRUE)
+  )
 })
 
+# Add mean and median lines for each group
+for (i in seq_along(groups)) {
+  student_demo_plot <- student_demo_plot %>%
+    add_segments(
+      x = group_stats[[i]]$mean,
+      xend = group_stats[[i]]$mean,
+      y = 0, yend = 1,
+      yref = "paper",
+      name = paste0(groups[i], " mean: ",
+                    round(group_stats[[i]]$mean, 1)),
+      line = list(color = "red", width = 2, dash = "dash"),
+      showlegend = TRUE,
+      visible = i == 1,
+      inherit = FALSE
+    ) %>%
+    add_segments(
+      x = group_stats[[i]]$median,
+      xend = group_stats[[i]]$median,
+      y = 0, yend = 1,
+      yref = "paper",
+      name = paste0(groups[i], " median: ",
+                    round(group_stats[[i]]$median, 1)),
+      line = list(color = "blue", width = 2, dash = "dot"),
+      showlegend = TRUE,
+      visible = i == 1,
+      inherit = FALSE
+    )
+}
+
+# Set visibility for histogram and its matching indicator lines
+num_groups <- length(groups)
+total_traces <- num_groups * 3
+
 dropdown_buttons <- lapply(seq_along(groups), function(i) {
+  visible_traces <- rep(FALSE, total_traces)
+  visible_traces[i] <- TRUE
+  visible_traces[num_groups + 2 * i - 1] <- TRUE
+  visible_traces[num_groups + 2 * i] <- TRUE
+
   list(
     method = "update",
     args = list(
-      list(visible = visibility[[i]]),
+      list(visible = visible_traces),
       list(title = paste("Age Distribution:", groups[i]))
     ),
     label = groups[i]
@@ -134,48 +306,73 @@ student_demo_plot <- student_demo_plot %>%
 
 student_demo_plot
 ```
+**Interpretation:** 
+the histograms shows the overall distributions of Ages within the sample, and separated by two Gender categories. All students are between the ages of 20 and 26, with the mean being 22.5 for the entire sample, 22.7 for men, and 22.2 for women. The median is 23 for men and the overall student sample, but 22 for women: This shows that while men in this sample are slightly older on average, the difference between the two groups is not substantial.
+
+### Gender Composition
+This bar chart demonstrates the gender composition within our utilized sample. The different bars refer to students within separate gender categories, and the numbers as well as percentages of those within a bar can be read out on top of the bars or via the y-axis.
+
 
 ### Depression Status
 
 The following plot visualizes the Depression status (yes = depression present, sometimes = occasional depressive mood, no = no depression present) within the student sample.
 
 ```{r}
-depression_column <- "DepressionStatus"
 
-depression_data <- reports %>%
-  filter(!is.na(.data[[depression_column]])) %>%
-  count(Response = .data[[depression_column]],
-        name = "Students") %>%
+### Gender Composition
+#| fig-width: 8
+#| fig-height: 5
+
+# Summarise the gender composition
+gender_data <- reports %>%
+  filter(!is.na(Gender)) %>%
+  mutate(Gender = trimws(as.character(Gender))) %>%
+  count(Gender, name = "Students") %>%
   mutate(
-    Percentage = 100 * Students / sum(Students)
+    Percentage = 100 * Students / sum(Students),
+    Label = paste0(
+      Students, " (", round(Percentage, 1), "%)"
+    )
   )
 
-plot_ly(
-  data = depression_data,
-  x = ~Response,
-  y = ~Students,
-  type = "bar",
-  marker = list(
-    color = viridis(nrow(depression_data), option = "D"),
-    line = list(color = "white", width = 1)
-  ),
-  customdata = ~Percentage,
-  hovertemplate = paste(
-    "Response: %{x}",
-    "<br>Students: %{y}",
-    "<br>Percentage: %{customdata:.1f}%",
-    "<extra></extra>"
+# Create the bar chart
+ggplot(gender_data,
+       aes(x = reorder(Gender, -Students),
+           y = Students,
+           fill = Gender)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  geom_text(
+    aes(label = Label),
+    vjust = -0.5,
+    size = 4
+  ) +
+  scale_fill_viridis_d(option = "D", end = 0.9) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.15))
+  ) +
+  labs(
+    title = "Gender Composition of the Student Sample",
+    subtitle = "Number and percentage of students in each category",
+    x = "Gender",
+    y = "Number of students",
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(face = "bold")
   )
-) %>%
-  layout(
-    title = "Student Depression Status",
-    xaxis = list(title = "Reported Status"),
-    yaxis = list(title = "Number of Students"),
-    template = "plotly_white",
-    margin = list(t = 70, b = 90)
-  )
-
 ```
+**Interpretation:** 
+The gender composition plots highlight that the sample is relatively balanced, and not dominated by either Gender, although there are slightly more male participants.
+
+
+:::
+
+## Study Habits
+:::panel-tabset
+### Academic Performance in relation to Taking Notes in Class: Dynamic Plot
+Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and
 
 ### Sleep Duration
 
@@ -236,16 +433,17 @@ reports %>%
   ) %>%
   arrange(AcademicPerformance, TakingNoteInClass)
 
-```
+Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
 
-#### Dynamic Plot
+
+The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
+=======
+
 
 A visualization of the above Table. The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
 
-```{r}
-library(dplyr)
-library(plotly)
 
+```{r}
 # Counting number of students in each combination
 habit_data <- reports %>%
   filter(
@@ -300,11 +498,34 @@ animated_figure <- plot_ly(
   animation_slider()
 
 animated_figure
+```
+
+
+```{r}
+
+# Count students in each academic performance group
+group_counts <- reports %>%
+  filter(
+    !is.na(AcademicPerformance),
+    !is.na(TakingNoteInClass)
+  ) %>%
+  count(AcademicPerformance, name = "Number of students")
+
+knitr::kable(
+  group_counts,
+  col.names = c("Academic Performance", "Number of Students"),
+  caption = "Number of students included in the note-taking analysis"
+)
 
 ```
+**Interpretation:**
+The chart indicates note taking habit differences among students within different academic performance groups. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking. 
+However, we added the table below to highlight careful interpretation of these results, because percentages are descriptive. Therefore, differences in group size may affect the observed results, wherefore we should not draw definite causality conclusions based on this.
+
 
 ### Depression Status and Academic Performance
 
+Here we used a stacked bar chart to assess the amount of students per academic performance group within each depression-status category. The bars show the depression-status categories (No, Sometimes, Yes), and the colored contents show the different academic performance groups. Hovering over one of the colored segments will show the number and percentage of students within.
 ```{r}
 depression_data <- reports %>%
   filter(
@@ -360,9 +581,11 @@ depression_plot <- plot_ly(
 depression_plot
 
 ```
+**Interpretation:**
+The colored segments show that students whose self-reported performance is average, good, or excellent, are represented in all levels of depression to degrees that don't vary drastically. However, the four students performing below average have all indicated "yes" when asked about whether they experience depression. 
 
 ### Challenges in completing Academic Tasks
-
+We included this bar chart to visualize whether students feel challenged in completing academic tasks. The menu can be used to choose whether to display the responses in number of students or percentages.
 ```{r}
 challenge_data <- reports %>%
   filter(!is.na(FaceChallangesToCompleteAcademicTask)) %>%
@@ -442,6 +665,8 @@ challenge_plot <- plot_ly(
 
 challenge_plot
 ```
+**Interpretation:** 
+The number of students option was incorporated in order to demonstrate how many students selected each answer possibility. The percentages option helps visualize the actual shares of responses. Whether challenges are experienced by students differs between students, but does not differ substantially between levels of challenge.
 
 ### Challenges in completing Academic tasks and performance
 
@@ -558,6 +783,9 @@ plot_ly(
 
 
 ```
+**Interpretation:** 
+This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the biggest difference within the sample, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
+
 :::
 
 # Analysis 1 - Sleep and Mental Well being
@@ -625,8 +853,6 @@ ggplot(reports, aes(x = SleepPerDayHours)) +
     plot.title = element_text(face = "bold"),
     panel.grid.minor = element_blank()
   )
-
-
 ```
 
 ### What does the distribution show?
@@ -1809,6 +2035,7 @@ model_log <- ordinal::clm(
   data = model_data,
   link = "logit"
 )
+
 
 knitr::kable(
   AIC(model, model_log),

@@ -161,10 +161,6 @@ The following plot demonstrates the student ages within the sample.
 The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
 The x-axis shows age, whereas the y-axis shows the number of students per age group.
 
-
-The following plot demonstrates the student ages within the sample. The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
-
-
 ```{r}
 #| warning: false
 age_data <- reports %>%
@@ -218,6 +214,7 @@ for (i in seq_along(groups)) {
 }
 
 # Adding dropdown menu
+
 # Each group has a histogram, mean line, and median line
 
 # Calculate mean and median for each group
@@ -312,13 +309,7 @@ the histograms shows the overall distributions of Ages within the sample, and se
 ### Gender Composition
 This bar chart demonstrates the gender composition within our utilized sample. The different bars refer to students within separate gender categories, and the numbers as well as percentages of those within a bar can be read out on top of the bars or via the y-axis.
 
-
-### Depression Status
-
-The following plot visualizes the Depression status (yes = depression present, sometimes = occasional depressive mood, no = no depression present) within the student sample.
-
 ```{r}
-
 ### Gender Composition
 #| fig-width: 8
 #| fig-height: 5
@@ -372,76 +363,8 @@ The gender composition plots highlight that the sample is relatively balanced, a
 ## Study Habits
 :::panel-tabset
 ### Academic Performance in relation to Taking Notes in Class: Dynamic Plot
-Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and
-
-### Sleep Duration
-
-The following plot demonstrates the students' sleep duration (in hours).
-
-```{r}
-sleep_data <- reports %>%
-  filter(!is.na(SleepPerDayHours))
-
-plot_ly(
-  data = sleep_data,
-  x = ~SleepPerDayHours,
-  type = "histogram",
-  xbins = list(size = 1),
-  marker = list(
-    color = viridis(5, option = "D")[3],
-    line = list(color = "white", width = 1)
-  ),
-  hovertemplate = paste(
-    "Sleep duration: %{x} hours",
-    "<br>Number of students: %{y}",
-    "<extra></extra>"
-  )
-) %>%
-  layout(
-    title = "How Many Hours Do Students Sleep?",
-    xaxis = list(
-      title = "Hours of Sleep per Day",
-      dtick = 1
-    ),
-    yaxis = list(title = "Number of Students"),
-    template = "plotly_white",
-    margin = list(t = 70, b = 60)
-  )
-
-```
-:::
-
-## Study Habits
-
-::: panel-tabset
-### Academic Performance in relation to Taking Notes in Class
-
-#### Table
-
-Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and Taking Notes is quantified in "Yes", "No", and "Maybe" answer
-
-```{r}
-reports %>%
-  filter(
-    !is.na(AcademicPerformance),
-    !is.na(TakingNoteInClass)
-  ) %>%
-  count(AcademicPerformance, TakingNoteInClass) %>%
-  group_by(AcademicPerformance) %>%
-  mutate(
-    Percentage = round(100 * n / sum(n), 1)
-  ) %>%
-  arrange(AcademicPerformance, TakingNoteInClass)
-```
-
-Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
-
-
+Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
 The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
-
-
-A visualization of the above Table. The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
-
 
 ```{r}
 # Counting number of students in each combination

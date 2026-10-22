@@ -1,0 +1,14 @@
+# R temporary files and session data
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio local settings
+.Rproj.user/
+
+# Quarto generated output
+.quarto/
+
+# Operating system files
+.DS_Store
+Thumbs.db

@@ -78,6 +78,7 @@ There are two main section of analyses completed.
 
 # Data overview
 
+
 ```{r}
 #| echo: true
 #| output: false
@@ -89,6 +90,10 @@ There are two main section of analyses completed.
 
 ## Loading data
 Paste and run the following code to obtain the dataset and add it to the environment under the name "reports". This is important because it will be referred to as "reports" throughout the document.
+
+## Loading data
+
+
 ```{r}
 reports <- read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%281%29.csv")
 
@@ -130,8 +135,15 @@ if (length(missing_columns) > 0) {
 ```
 
 ## Libraries
+
 Has to be ran prior to running the code chunks.
+
 ```{r}
+#| echo: true
+#| output: false
+#| message: false
+#| warning: false
+
 library(tidyverse)
 library(plotly)
 library(ggstatsplot)
@@ -144,9 +156,14 @@ library(rstatix)
 
 ::: panel-tabset
 ### Student Age, visible by Gender
+
 The following plot demonstrates the student ages within the sample.
 The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
 The x-axis shows age, whereas the y-axis shows the number of students per age group.
+
+
+The following plot demonstrates the student ages within the sample. The dropdown menu can be utilized to show the age distribution according to Gender (Male/Female).
+
 
 ```{r}
 #| warning: false
@@ -295,6 +312,11 @@ the histograms shows the overall distributions of Ages within the sample, and se
 ### Gender Composition
 This bar chart demonstrates the gender composition within our utilized sample. The different bars refer to students within separate gender categories, and the numbers as well as percentages of those within a bar can be read out on top of the bars or via the y-axis.
 
+
+### Depression Status
+
+The following plot visualizes the Depression status (yes = depression present, sometimes = occasional depressive mood, no = no depression present) within the student sample.
+
 ```{r}
 
 ### Gender Composition
@@ -344,6 +366,7 @@ ggplot(gender_data,
 **Interpretation:** 
 The gender composition plots highlight that the sample is relatively balanced, and not dominated by either Gender, although there are slightly more male participants.
 
+
 :::
 
 ## Study Habits
@@ -351,9 +374,74 @@ The gender composition plots highlight that the sample is relatively balanced, a
 ### Academic Performance in relation to Taking Notes in Class: Dynamic Plot
 Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and
 
+### Sleep Duration
+
+The following plot demonstrates the students' sleep duration (in hours).
+
+```{r}
+sleep_data <- reports %>%
+  filter(!is.na(SleepPerDayHours))
+
+plot_ly(
+  data = sleep_data,
+  x = ~SleepPerDayHours,
+  type = "histogram",
+  xbins = list(size = 1),
+  marker = list(
+    color = viridis(5, option = "D")[3],
+    line = list(color = "white", width = 1)
+  ),
+  hovertemplate = paste(
+    "Sleep duration: %{x} hours",
+    "<br>Number of students: %{y}",
+    "<extra></extra>"
+  )
+) %>%
+  layout(
+    title = "How Many Hours Do Students Sleep?",
+    xaxis = list(
+      title = "Hours of Sleep per Day",
+      dtick = 1
+    ),
+    yaxis = list(title = "Number of Students"),
+    template = "plotly_white",
+    margin = list(t = 70, b = 60)
+  )
+
+```
+:::
+
+## Study Habits
+
+::: panel-tabset
+### Academic Performance in relation to Taking Notes in Class
+
+#### Table
+
+Academic performance can be sorted by "Below average", "Average", "Good", "Excellent", and Taking Notes is quantified in "Yes", "No", and "Maybe" answer
+
+```{r}
+reports %>%
+  filter(
+    !is.na(AcademicPerformance),
+    !is.na(TakingNoteInClass)
+  ) %>%
+  count(AcademicPerformance, TakingNoteInClass) %>%
+  group_by(AcademicPerformance) %>%
+  mutate(
+    Percentage = round(100 * n / sum(n), 1)
+  ) %>%
+  arrange(AcademicPerformance, TakingNoteInClass)
+
 Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
 
+
 The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
+=======
+
+
+A visualization of the above Table. The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
+
 
 ```{r}
 # Counting number of students in each combination
@@ -581,6 +669,7 @@ challenge_plot
 The number of students option was incorporated in order to demonstrate how many students selected each answer possibility. The percentages option helps visualize the actual shares of responses. Whether challenges are experienced by students differs between students, but does not differ substantially between levels of challenge.
 
 ### Challenges in completing Academic tasks and performance
+
 The above demonstrated academic task challenges plotted in relation to academic performance.
 
 ```{r}
@@ -698,6 +787,7 @@ plot_ly(
 This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the biggest difference within the sample, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
 
 :::
+
 # Analysis 1 - Sleep and Mental Well being
 
 Sleep is an important part of student life and may be related to both academic performance and mental well-being. In this part of the analysis, we explore students' daily sleep duration and examine whether sleep patterns differ across academic performance and self-reported depression-status groups. We begin by looking at the overall distributions, before exploring differences between the groups.
@@ -1325,7 +1415,7 @@ Another crucial part of student's life is their social relations and skills. Whe
 
 ### **How many friends do students have?**
 
-We first analyzed the distribution of number of friends among the 99 students from our sample. The summary statistics describe average number of friends, outliers information (minimum and maximum values), as well as the reporting rates of the variable (valid responses vs. missing values).
+We examined students’ self-reported number of friends as an indicator of social network size. Of the 99 students, 95 provided a valid response and four had missing responses. The summary statistics describe the centre, variability, and range of reported counts.
 
 ```{r}
 #descriptive statistics summary of variable friends data 
@@ -1343,7 +1433,7 @@ friend_summary <- reports %>%
     maximum_friends = max(NumberOfFriend, na.rm = TRUE)
   ) 
 
-#putting the statistics in a readable table
+#putting results in a more readable table
 friend_summary %>%
   pivot_longer(
     cols = everything(),
@@ -1384,196 +1474,598 @@ gghistostats(
 
 ### **What does the distribution show?**
 
-The histogram ...
+Friendship counts were strongly right-skewed, most students reported relatively few friends, while a small number reported much higher counts, reaching 100. The mean was 16.19 friends, compared with a median of 6 and an interquartile range of 12. The difference between the mean and median reflects the influence of high counts, making the median a useful description of a typical response.
 
-## Liking presentations (public speaking)
+## Liking presentations
 
-### **Do students like giving presentations (public speaking)?**
+### **Do students like giving presentations**
 
-We also analysed student's preferences in their reporting of whether they like giving presentations, which we argue is also closely related to social skills considering the connection between public speaking and sociability.
+We examined whether students reported liking giving presentations. Although not a direct measure of social skills, presentation preference may be relevant to participation in some social situations
 
-Insert summary table and interpretation of it above
+Because counts and percentages are already presented in the graph, a separate table was not included to avoid repeating the same information.
 
 ```{r}
 #| warning: false
 
-#plotting data distribution                  
-ggbarstats(
-  data = reports,
-  x = LikePresentation,
-  title = "Do students like giving public presentations?",
-  subtitle = "Distribution of student's reported preferences",
-  legend.title = "Likes giving presentations?",
-  results.subtitle = FALSE,
-  ggtheme = ggplot2::theme_bw()
-) +
-  scale_fill_viridis_d(
-    option = "D"
+#preparing data to be plotted
+presentation_counts <- reports %>%
+  ungroup() %>%
+  count(LikePresentation) %>%
+  mutate(
+    proportion = n / sum(n),
+    label = paste0(
+      "n = ", n, " (",
+      scales::percent(proportion, accuracy = 1), ")"
+    ),
+    tooltip = paste0(
+      "Response: ", LikePresentation,
+      "<br>Students: ", n,
+      "<br>Percentage: ",
+      scales::percent(proportion, accuracy = 0.1)
+    )
   )
+
+#plotting distribution
+plotly::ggplotly(
+  ggplot(
+    presentation_counts,
+    aes(
+      x = proportion,
+      y = factor(LikePresentation),
+      fill = factor(LikePresentation),
+      text = tooltip
+    )
+  ) +
+    geom_col(width = 0.6) +
+    geom_label(
+      aes(x = proportion / 2, label = label),
+      fill = "white",
+      colour = "black"
+    ) +
+    scale_fill_viridis_d() +
+    scale_x_continuous(
+      labels = scales::label_percent(),
+      breaks = seq(0, 1, 0.1),
+      limits = c(0, 1)
+    ) +
+    labs(
+      title = "Do students like giving public presentations?",
+      subtitle = "Distribution of students' reported preferences",
+      x = "Percentage of students",
+      y = NULL,
+      caption = paste("Total responses:", sum(presentation_counts$n))
+    ) +
+    theme_bw() +
+    theme(legend.position = "none"),
+  tooltip = "text"
+)
+
 ```
 
 ### What does the distribution show?
 
-The histogram...
+Among the 99 students examined, 69 (approximately 70%) reported liking giving presentations and 30 (approximately 30%) did not. Thus, liking presentations was more common than not liking presentations in this sample.
 
 ## Liking new things
 
 ### **Do students like new things?**
 
-Lastly, before moving on to seeing how the social variables relate to one another we also analysed the patterns in student responses on whether they like new things. Similarly to liking to give presentations, we consider liking new things to be a social skill because of its close connection to sociability. Specifically, we believe it directly relates to openness to experience, a directly relevant personality trait that relates to higher levels of empathy and connection
+We also examined whether students reported liking new things. This question captures a general preference for novelty, while also not a validated measure of social skills, it could also be relevant to participation in certain social situations. We included it to explore whether this preference was associated with friendship counts.
 
-Insert summary table + interpretation of it above
+Because counts and percentages are already presented in the graph, a separate table was not included to avoid repeating the same information.
 
 ```{r}
 #| warning: false
 
-#plotting data distribution 
-ggbarstats(
-  data = reports,
-  x = LikeNewThings,
-  title = "How students feel about new things",
-  subtitle = "Distribution of wheter students like new things",
-  legend.title = "Students reported liking new things?",
-  results.subtitle = FALSE,
-  ggtheme = ggplot2::theme_bw()
-) +
-  scale_fill_viridis_d(
-    option = "D"
+#preparing data to be plotted
+new_things_counts <- reports %>%
+  ungroup() %>%
+  count(LikeNewThings) %>%
+  mutate(
+    proportion = n / sum(n),
+    label = paste0(
+      "n = ", n, " (",
+      scales::percent(proportion, accuracy = 1), ")"
+    ),
+    tooltip = paste0(
+      "Response: ", LikeNewThings,
+      "<br>Students: ", n,
+      "<br>Percentage: ",
+      scales::percent(proportion, accuracy = 0.1)
+    )
   )
+
+#ploting data distribution
+plotly::ggplotly(
+  ggplot(
+    new_things_counts,
+    aes(
+      x = proportion,
+      y = factor(LikeNewThings),
+      fill = factor(LikeNewThings),
+      text = tooltip
+    )
+  ) +
+    geom_col(width = 0.6) +
+    geom_label(
+      aes(x = proportion / 2, label = label),
+      fill = "white",
+      colour = "black"
+    ) +
+    scale_fill_viridis_d(option = "D") +
+    scale_x_continuous(
+      labels = scales::label_percent(),
+      breaks = seq(0, 1, 0.1),
+      limits = c(0, 1)
+    ) +
+    labs(
+      title = "How students feel about new things",
+      subtitle = "Distribution of students' reported preferences",
+      x = "Percentage of students",
+      y = NULL,
+      caption = paste("Total responses:", sum(new_things_counts$n))
+    ) +
+    theme_bw() +
+    theme(legend.position = "none"),
+  tooltip = "text"
+)
 ```
 
 ### What does this distribution show?
 
-The histogram....
+Among the 99 students, 89 (approximately 90%) reported liking new things and 10 (approximately 10%) did not. Similarly to liking to give presentations, liking new things was also more common than not liking new things in this sample.
 
 ## Relationship between social variables
 
-**How do these three variables (number of friends, likeness of public presentation, and likeness of new things) relate with one another?**
+### **RQ: How do reported friendship counts differ across combinations of preferences for presentations and new things?**
 
-Insert reasoning
+We explored whether students’ preferences for giving presentations and new things were associated with their reported number of friends. These preferences may relate to participation in activities that offer opportunities for social contact. Comparing friendship counts across the four preference combinations allows us to examine whether students with different combinations report different social network sizes.
+
+- **H₀:** Students who like to both give presentations and new things will NOT have more friends than other students. 
+
+- **H₁:** Students who like to both give presentations and new things will have more friends than those who do not.
 
 ```{r}
-#preparing data to be plotted 
+#| warning: false
 
-plot_social_life_report <- reports %>%
+#preparing data to be analyzed
+social_life_data <- reports %>%
+  ungroup() %>%
+  drop_na(NumberOfFriend) %>%
   mutate(
     across(
       c(LikeNewThings, LikePresentation),
-      ~ case_when(
-        str_to_lower(str_trim(as.character(.x))) %in% c("yes", "1") ~ 1L,
-        str_to_lower(str_trim(as.character(.x))) %in% c("no", "0") ~ 0L,
-        TRUE ~ NA_integer_
-      )
-    )
-  ) %>%
-  drop_na(NumberOfFriend, LikeNewThings, LikePresentation) |>
-  mutate(
-    preference_group = str_c(
-      "New things: ", if_else(LikeNewThings == 1, "Yes", "No"),
-      "\nPresentations: ", if_else(LikePresentation == 1, "Yes", "No")
+      ~ factor(.x, levels = c("No", "Yes"))
+    ),
+    preference_group = interaction(
+      LikeNewThings,
+      LikePresentation,
+      sep = " / ",
+      lex.order = TRUE,
+      drop = TRUE
     )
   )
 
-#boxplot 
-
-ggbetweenstats(
-  data = plot_social_life_report,
-  x = preference_group,
-  y = NumberOfFriend,                                 
-  plot.type = "box",
-  results.subtitle = FALSE,
-  pairwise.comparisons = FALSE,
-  centrality.plotting = FALSE,
-  xlab = "Preference combination",
-  ylab = "Number of friends",
-  title = "Number of friends by preferences",
-  ggtheme = ggplot2::theme_bw()
-)  +
-  scale_color_viridis_d(
-    option = "D"
+#getting group statistics
+group_summary <- social_life_data %>%
+  group_by(preference_group) %>%
+  summarise(
+    n = n(),
+    median_friends = median(NumberOfFriend),
+    iqr_friends = IQR(NumberOfFriend),
+    mean_friends = mean(NumberOfFriend),
+    sd_friends = sd(NumberOfFriend),
+    minimum_friends = min(NumberOfFriend),
+    maximum_friends = max(NumberOfFriend),
+    .groups = "drop"
   ) 
 
-```
+#putting group summary results in a more readable table
+group_summary %>%
+  transmute(
+    preference_group,
+    n,
+    median_friends,
+    iqr_friends,
+    mean_friends,
+    sd_friends,
+    range = str_c(minimum_friends, "–", maximum_friends)
+  ) %>%
+  knitr::kable(
+    caption = "Reported friendship counts by preference combination",
+    col.names = c(
+      "New things / Presentations",
+      "Students",
+      "Median",
+      "IQR",
+      "Mean",
+      "SD",
+      "Range"
+    ),
+    digits = c(0, 0, 1, 1, 2, 2, 0),
+    align = c("l", "r", "r", "r", "r", "r", "r")
+  )
 
-```{r}
-#testing 3d interactive plots  
-
+#plotting data
 set.seed(11)
 
-plot_social_life_report %>%
-  plot_ly(
-    x = ~ jitter(LikeNewThings, amount = 0.06),
-    y = ~ jitter(LikePresentation, amount = 0.06),
-    z = ~ NumberOfFriend,
-    color = ~ preference_group,
-    colors = viridisLite::viridis(4),
-    type = "scatter3d",
-    mode = "markers",
-    marker = list(size = 4, opacity = 0.7),
-    text = ~ str_c(
-      preference_group, "\nNumber of friends: ", NumberOfFriend
-    ),
-    hoverinfo = "text"
-  ) %>%
+ggplotly(
+  ggplot(
+    social_life_data,
+    aes(x = preference_group, y = NumberOfFriend)
+  ) +
+    geom_boxplot(
+      width = 0.5,
+      outlier.shape = NA,
+      fill = "grey95"
+    ) +
+    geom_jitter(
+      aes(
+        colour = preference_group,
+        text = str_c(
+          "Likes new things: ", LikeNewThings,
+          "<br>Likes presentations: ", LikePresentation,
+          "<br>Number of friends: ", NumberOfFriend
+        )
+      ),
+      width = 0.12,
+      height = 0,
+      alpha = 0.7,
+      size = 2
+    ) +
+    scale_colour_viridis_d(option = "D") +
+    labs(
+      title = "Number of friends by preferences",
+      subtitle = "Group labels: likes new things / likes presentations",
+      x = "Preference combination",
+      y = "Number of friends",
+      caption = paste(
+        "Students with valid friendship counts:",
+        nrow(social_life_data)
+      )
+    ) +
+    theme_bw() +
+    theme(legend.position = "none"),
+  tooltip = "text"
+) %>%
   layout(
-    title = "Number of friends by preferences",
-    scene = list(
-      xaxis = list(
-        title = "Likes new things",
-        tickvals = c(0, 1),
-        ticktext = c("No", "Yes")
-      ),
-      yaxis = list(
-        title = "Likes presentations",
-        tickvals = c(0, 1),
-        ticktext = c("No", "Yes")
-      ),
-      zaxis = list(title = "Number of friends")
+    dragmode = "zoom",
+    hovermode = "closest"
+  ) %>%
+  config(
+    displaylogo = FALSE,
+    displayModeBar = TRUE,
+    scrollZoom = FALSE,
+    doubleClick = "reset"
+  )
+
+#running overall staistical comparison
+kruskal_results <- social_life_data %>%
+  kruskal_test(NumberOfFriend ~ preference_group) 
+
+#putting statitcal comparison results in a more readable table
+kruskal_results %>%
+  transmute(
+    test = "Kruskal–Wallis",
+    n,
+    statistic,
+    df,
+    p
+  ) %>%
+  knitr::kable(
+    caption = "Overall comparison of friendship-count distributions",
+    col.names = c("Test", "Students", "H", "df", "p-value"),
+    digits = c(0, 0, 2, 0, 3),
+    align = c("l", "r", "r", "r", "r")
+  )
+```
+
+Friendship counts showed no consistent increase across preference combinations (new things / presentations). Students who liked both had the widest spread, with several counts reaching 100, although their median was only 4. The median was higher among students who liked new things but disliked presentations (8.5), while students who disliked both had the lowest median (2). All four students who disliked new things but liked presentations reported 9 friends, so their box collapsed to a horizontal line. Despite these descriptive differences, the Kruskal–Wallis test did not provide clear evidence of differences in friendship-count distributions across groups, H(3)=4.26, p=.234. Therefore, although the graph may indicate some group differences, the statistical test provides evidence for the null hypothesis. Interpretation should be cautious because group sizes were small and unequal.
+
+## Social variables and Academic performance
+
+### **RQ: Are friendship counts and preferences for presentations and new things associated with higher self-reported academic performance?**
+
+This research question explores whether students’ social connections and preferences for presenting and trying new things are related to how they rate their academic performance
+
+- **H₀:** Friendship counts and preferences for presentations and new things are not associated with self-reported academic performance.
+
+- **H₁:** Students with more friends and who like presentations and new things will tend to report higher academic performance.
+
+```{r}
+#preparing data to plot
+academic_data <- reports %>%
+  ungroup() %>%
+  rename_with(trimws) %>%
+  mutate(
+    AcademicPerformance = factor(
+      str_to_title(str_trim(as.character(AcademicPerformance))),
+      levels = c("Below Average", "Average", "Good", "Excellent"),
+      ordered = TRUE
+    )
+  ) %>%
+  drop_na(NumberOfFriend)
+
+#plotting data
+set.seed(11)
+
+academic_data %>%
+  transmute(
+    `Academic performance` = AcademicPerformance,
+    `Number of friends` = NumberOfFriend
+  ) %>%
+  {ggplotly(
+    ggplot(., aes(x = `Academic performance`, y = `Number of friends`)) +
+      geom_boxplot(
+        width = 0.5,
+        outlier.shape = NA,
+        fill = "grey95"
+      ) +
+      geom_jitter(
+        aes(colour = `Academic performance`),
+        width = 0.12,
+        height = 0,
+        alpha = 0.7,
+        size = 2
+      ) +
+      scale_colour_viridis_d(option = "D", drop = FALSE) +
+      scale_x_discrete(drop = FALSE) +
+      labs(
+        title = "Friendship counts by academic performance",
+        x = "Academic performance",
+        y = "Number of friends"
+      ) +
+      theme_bw() +
+      theme(legend.position = "none"),
+    tooltip = c("x", "y")
+  )} %>%
+  layout(dragmode = "zoom", hovermode = "closest") %>%
+  config(
+    displaylogo = FALSE,
+    displayModeBar = TRUE,
+    scrollZoom = FALSE,
+    doubleClick = "reset"
+  )
+
+#running statistical tests + putting it in a nice table
+academic_data %>%
+  {
+    cor.test(
+      x = .$NumberOfFriend,
+      y = as.integer(.$AcademicPerformance),
+      method = "spearman",
+      exact = FALSE,
+      alternative = "two.sided"
+    )
+  } %>%
+  {
+    tibble(
+      test = "Spearman's rank correlation",
+      n = nrow(academic_data),
+      rho = unname(.$estimate),
+      p = .$p.value
+    )
+  } %>%
+  mutate(
+    p = if_else(p < 0.001, "< .001", sprintf("%.3f", p))
+  ) %>%
+  knitr::kable(
+    caption = "Association between friendship count and academic performance",
+    col.names = c("Test", "Students", "Spearman's rho", "p-value"),
+    digits = c(0, 0, 3, 0),
+    align = c("l", "r", "r", "r")
+  )
+
+```
+
+The boxplot shows that reported friendship counts generally increase with academic performance. All four Below Average students reported one friend, while the Average and Good groups had higher medians and overlapping distributions. The Excellent group had the highest median, but also substantial variation, with friendship counts ranging from 3 to 80.
+
+Among the 95 students analysed, Spearman’s rank correlation indicated a weak positive association between friendship count and academic performance (ρ = .282, p = .006). This association was statistically significant at the conventional .05 level, suggesting that students reporting more friends tended to report higher academic performance, supporting our hypothesis albeit weakly. However, the relationship was modest and does not establish that having more friends causes better academic perf
+
+### Liking presentations
+
+```{r}
+#preparing data
+presentation_academic <- reports %>%
+  ungroup() %>%
+  rename_with(trimws) %>%
+  mutate(
+    LikePresentation = factor(LikePresentation, levels = c("No", "Yes")),
+    AcademicPerformance = factor(
+      str_to_title(str_trim(as.character(AcademicPerformance))),
+      levels = c("Below Average", "Average", "Good", "Excellent"),
+      ordered = TRUE
     )
   )
 
+#plotting (and bit of data preparation too)
+presentation_academic %>%
+  count(LikePresentation, AcademicPerformance) %>%
+  group_by(LikePresentation) %>%
+  mutate(
+    proportion = n / sum(n),
+    hover = str_c(
+      "Likes presentations: ", LikePresentation,
+      "<br>Academic performance: ", AcademicPerformance,
+      "<br>Students: ", n, " of ", sum(n),
+      "<br>Percentage: ", scales::percent(proportion, accuracy = 0.1)
+    )
+  ) %>%
+  ungroup() %>%
+  plot_ly(
+    x = ~LikePresentation, y = ~proportion,
+    color = ~AcademicPerformance,
+    colors = viridisLite::viridis(4),
+    type = "bar", text = ~hover, hoverinfo = "text"
+  ) %>%
+ layout(
+    title = "Academic performance by presentation preference",
+    barmode = "stack",
+    xaxis = list(title = "Likes giving presentations"),
+    yaxis = list(title = "Percentage of students", tickformat = ".0%"),
+    legend = list(title = list(text = "Academic performance"))
+  ) %>%
+  config(displaylogo = FALSE, scrollZoom = FALSE)
 
 
+#running statistical test
+presentation_academic %>%
+  {
+    table(
+      droplevels(.$LikePresentation),
+      droplevels(.$AcademicPerformance)
+    )
+  } %>%
+  fisher.test() %>%
+  {
+    tibble(
+      test = "Fisher's exact test",
+      n = nrow(presentation_academic),
+      p = .$p.value
+    )
+  } %>%
+  mutate(p = if_else(p < 0.001, "< .001", sprintf("%.3f", p))) %>%
+  knitr::kable(
+    caption = "Association between presentation preference and academic performance",
+    col.names = c("Test", "Students", "p-value"),
+    align = c("l", "r", "r")
+  )
 ```
 
-Summary of relationship
+The stacked bar chart shows that students who liked giving presentations generally reported higher academic performance. Around 55% of this group reported Good or Excellent performance, compared with 40% of those who did not like presentations. Below Average performance occurred only among students who disliked presentations (13.3%), while Excellent performance occurred only among those who liked them (approximately 13%).
 
-## Creating a new variable: Extroversion
+Among the 99 students analysed, Fisher’s exact test indicated a statistically significant association between presentation preference and academic performance (p = .004). This provides evidence that the performance distributions differed between the two groups, providing support for our hypotheses. Considering the descriptive data in the graph, this association is likely positive. However, although the chart suggests more favourable performance among students who liked presentations, the test does not establish that liking presentations causes better academic performance.
 
-### **Creating a new variable: Extroversion**
-
-Insert reasoning
+### Liking new things
 
 ```{r}
-#use dplyr to create new variable (extroversion) based on other three
+#preparing data
+new_things_academic <- presentation_academic %>%
+  mutate(LikeNewThings = factor(LikeNewThings, levels = c("No", "Yes")))
 
-extroversion_reports <- reports %>%
-  mutate(LikeNewThings = case_when(
-    LikePresentation == "Yes" ~ 1L,          #make it so it's not duplicate code
-    LikePresentation == "No"  ~ 0L,
-    TRUE ~ NA_integer_)) %>%
-  mutate(LikePresentation = case_when(
-    LikePresentation == "Yes" ~ 1L,
-    LikePresentation == "No"  ~ 0L,
-    TRUE ~ NA_integer_)) %>%
-  mutate(Extroversion = NumberOfFriend * 0.50 + 
-           LikeNewThings * 0.25 +            #update math/percentages (add wieght?)
-           LikePresentation * 0.25)
-                                            #make a regression model?
+#plotting
+new_things_academic %>%
+  count(LikeNewThings, AcademicPerformance) %>%
+  group_by(LikeNewThings) %>%
+  mutate(
+    proportion = n / sum(n),
+    hover = str_c(
+      "Likes new things: ", LikeNewThings,
+      "<br>Academic performance: ", AcademicPerformance,
+      "<br>Students: ", n, " of ", sum(n),
+      "<br>Percentage: ", scales::percent(proportion, accuracy = 0.1)
+    )
+  ) %>%
+  ungroup() %>%
+  plot_ly(
+    x = ~LikeNewThings, y = ~proportion,
+    color = ~AcademicPerformance,
+    colors = viridisLite::viridis(4),
+    type = "bar", text = ~hover, hoverinfo = "text"
+  ) %>%
+  layout(
+    title = "Academic performance by preference for new things",
+    barmode = "stack",
+    xaxis = list(title = "Likes new things"),
+    yaxis = list(title = "Percentage of students", tickformat = ".0%"),
+    legend = list(title = list(text = "Academic performance"))
+  ) %>%
+  config(displaylogo = FALSE, scrollZoom = FALSE)
 
-
-#plot new variables distribution
-
-gghistostats(
-  data = extroversion_reports,
-  x = Extroversion,
-  xlab = "Extroversion rates",
-  title = "How extroverted are students on average",
-  subtitle = "Distribution of extroversion across students",
-  binwidth = 2,
-  results.subtitle = FALSE,             
-  ggtheme = ggplot2::theme_bw() 
-)
+#running statistical test and putting it into a nice table
+new_things_academic %>%
+  {
+    table(
+      droplevels(.$LikeNewThings),
+      droplevels(.$AcademicPerformance)
+    )
+  } %>%
+  fisher.test() %>%
+  {
+    tibble(
+      test = "Fisher's exact test",
+      n = nrow(new_things_academic),
+      p = .$p.value
+    )
+  } %>%
+  mutate(p = if_else(p < 0.001, "< .001", sprintf("%.3f", p))) %>%
+  knitr::kable(
+    caption = "Association between liking new things and academic performance",
+    col.names = c("Test", "Students", "p-value"),
+    align = c("l", "r", "r")
+  )
 ```
 
+The stacked bar chart shows that students who did not like new things reported either Average (40%) or Good (60%) academic performance. Among those who liked new things, approximately 46% reported Average performance, 39% Good, 10% Excellent, and 4.5% Below Average. Although Excellent performance occurred only among students who liked new things, this group also included all Below Average responses, so the chart does not show a clear pattern of higher performance.
+
+Among the 99 students analysed, Fisher’s exact test found no statistically significant association between liking new things and academic performance (p = .702). The observed differences therefore do not provide clear evidence that academic-performance distributions differ between the two groups. Therefore, disproving our hypothesis and proving the null instead. This does not prove that no relationship exists, particularly given the small number of students who did not like new things.
+
+### Exploratory multivariable modelling
+
+Exploratory ordinal logistic regression was used to assess the associations of friendship count, presentation preference, and preference for new things with academic performance jointly. A logarithmic transformation of friendship count improved model fit, but diagnostic tests suggested violations of the proportional-odds assumption. A partial proportional-odds model had a lower AIC but produced extreme coefficients and unavailable standard errors, consistent with separation arising from sparse outcome–preference combinations. Therefore, adjusted effects were not interpreted, code output is below for reference.
+
+```{r}
+# 1. Use the same complete-case sample for all models
+model_variables <- c(
+  "AcademicPerformance", "NumberOfFriend",
+  "LikePresentation", "LikeNewThings"
+)
+
+model_data <- academic_data[
+  complete.cases(academic_data[, model_variables]),
+  model_variables
+]
+
+# Explicitly set the correct outcome order
+model_data$AcademicPerformance <- ordered(
+  model_data$AcademicPerformance,
+  levels = c("Below Average", "Average", "Good", "Excellent")
+)
+
+# 2. Compare original and log-transformed friendship counts
+model <- ordinal::clm(
+  AcademicPerformance ~ NumberOfFriend + LikePresentation + LikeNewThings,
+  data = model_data,
+  link = "logit"
+)
+
+model_log <- ordinal::clm(
+  AcademicPerformance ~ log1p(NumberOfFriend) +
+    LikePresentation + LikeNewThings,
+  data = model_data,
+  link = "logit"
+)
+
+
+knitr::kable(
+  AIC(model, model_log),
+  digits = 2,
+  caption = "Comparison of friendship-count specifications",
+  col.names = c("Estimated parameters", "AIC")
+)
+
+# 3. Check proportional odds for the log model
+ordinal::nominal_test(model_log)
+
+# 4. Fit and assess the partial proportional-odds model
+model_partial <- ordinal::clm(
+  AcademicPerformance ~ LikeNewThings,
+  nominal = ~ log1p(NumberOfFriend) + LikePresentation,
+  data = model_data,
+  link = "logit"
+)
+
+knitr::kable(
+  AIC(model_log, model_partial),
+  digits = 2,
+  caption = "Comparison of proportional-odds and partial proportional-odds models",
+  col.names = c("Estimated parameters", "AIC")
+)
+
+# 5. Inspect instability and sparse cells (each output printed once)
+print(summary(model_partial))
+
+with(model_data, table(AcademicPerformance, LikePresentation))
+with(model_data, table(AcademicPerformance, LikeNewThings))
+```
 :::

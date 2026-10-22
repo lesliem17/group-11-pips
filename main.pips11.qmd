@@ -432,12 +432,12 @@ reports %>%
     Percentage = round(100 * n / sum(n), 1)
   ) %>%
   arrange(AcademicPerformance, TakingNoteInClass)
+```
 
 Taking Notes is quantified in "Yes", "No", and "Maybe" answer.
 
 
 The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.
-=======
 
 
 A visualization of the above Table. The animation can be started by pressing the "Play" button on the left. Alternatively, it is possible to look at all groups manually.

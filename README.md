@@ -23,7 +23,18 @@ Open **main.pips11.qmd** in Rstudio and and run its chunks from top to bottom.
 
 ## Repository Structure
 
-> [! updating this upon finishing the code and analyses.]
+> ## Repository Structure
+
+```text
+group-11-pips/
+├── data/                   # Dataset files
+├── .gitignore              # Files that should be ignored by Github
+├── CITATION.cff            # Citation
+├── LICENSE                 # MIT Projecticense
+├── README.md               # Project documentation
+├── group-11-pips.Rproj     # RStudio project file
+└── main.pips11.qmd         # Main Quarto file
+```
 
 ## Using the project
 

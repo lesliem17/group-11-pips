@@ -2,7 +2,7 @@
 This is our shared repository for the pips course group project 2026. 
 
 ## Citation
-> Prado Nunes, R., Dzanic Arnaez, I., & Mauch, L. (2026). group-11-pips (will be modified) (Version 1.0.0) [Computer software]. https://github.com/lesliem17/group-11-pips
+> Prado Nunes, R., Dzanic Arnaez, I., & Mauch, L. (2026). Psychosocial Dimensions of Student Life (Version 1.0.0) [Computer software]. https://github.com/lesliem17/group-11-pips
 
 ## Getting started
 Clone the repository in RStudio:
@@ -16,7 +16,7 @@ The R variant requires R 4.6.1 or newer and RStudio is recommended.
 
 Install the relevant packages by running the following code.
 ```r
-install.packages(c("plotly", "tidyverse", "ggplots2", "viridis", "rstatix"))
+install.packages(c("plotly", "tidyverse", "ggplot2", "viridis", "rstatix", "ggstatsplot"))
 ```
 Open **main.pips11.qmd** in Rstudio and and run its chunks from top to bottom.  
 

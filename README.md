@@ -3,7 +3,7 @@ This is our shared repository for the pips course group project 2026.
 
 ## Citation
 > Prado Nunes, R., Dzanic Arnaez, I., & Mauch, L. (2026). group-11-pips (will be modified) (Version 1.0.0) [Computer software]. https://github.com/lesliem17/group-11-pips
-> 
+
 ## Getting started
 Clone the repository in RStudio:
 
@@ -12,10 +12,9 @@ git clone https://github.com/lesliem17/group-11-pips.git
 ```
 
 ### R
-The R variant requires R 4.4 or newer and RStudio is recommended. Install the packages needed to open an R Markdown document:
-> [! check in R which version I need via R.version.string]
+The R variant requires R 4.6.1 or newer and RStudio is recommended.
 
-install the relevant packages by running the following code.
+Install the relevant packages by running the following code.
 ```r
 install.packages(c("plotly", "tidyverse", "ggplots2", "viridis", "rstatix"))
 ```

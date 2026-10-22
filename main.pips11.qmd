@@ -66,13 +66,13 @@ There are two main section of analyses completed.
    - Do students like giving presentations?
    - Do students like new things?
 
-   Additionally, we mapped the relationships between the social variables.
+   Additionally, we mapped the relationships between the three social variables mentioned right above this.
 
    **RQ:** How do reported friendship counts differ across combinations of preferences for presentations and new things?
 
    - **Hypotheses:**
-     - H₀: Students who like to give presentations and new things will NOT have more friends than other students. 
-     - H₁: Students who like both giving presentations and new things will have more friends than those who do not. 
+     - H₀: Students who like to both give presentations and new things will NOT have more friends than other students. 
+     - H₁: Students who like to both give presentations and new things will have more friends than those who do not.
 
 ::: 
 
@@ -411,8 +411,29 @@ animated_figure <- plot_ly(
 
 animated_figure
 ```
+
+
+```{r}
+
+# Count students in each academic performance group
+group_counts <- reports %>%
+  filter(
+    !is.na(AcademicPerformance),
+    !is.na(TakingNoteInClass)
+  ) %>%
+  count(AcademicPerformance, name = "Number of students")
+
+knitr::kable(
+  group_counts,
+  col.names = c("Academic Performance", "Number of Students"),
+  caption = "Number of students included in the note-taking analysis"
+)
+
+```
 **Interpretation:**
-The chart indicates that students vary within groups and also between groups in their note taking habits. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking.
+The chart indicates note taking habit differences among students within different academic performance groups. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking. 
+However, we added the table below to highlight careful interpretation of these results, because percentages are descriptive. Therefore, differences in group size may affect the observed results, wherefore we should not draw definite causality conclusions based on this.
+
 
 ### Depression Status and Academic Performance
 
@@ -674,7 +695,7 @@ plot_ly(
 
 ```
 **Interpretation:** 
-This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the gravest congrast, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
+This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the biggest difference within the sample, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
 
 :::
 # Analysis 1 - Sleep and Mental Well being

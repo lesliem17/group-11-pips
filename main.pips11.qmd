@@ -1395,9 +1395,9 @@ Among the 99 students, 89 (approximately 90%) reported liking new things and 10 
 
 We explored whether students’ preferences for giving presentations and new things were associated with their reported number of friends. These preferences may relate to participation in activities that offer opportunities for social contact. Comparing friendship counts across the four preference combinations allows us to examine whether students with different combinations report different social network sizes.
 
-- **H₀:** Students who like to give presentations and new things will NOT have more friends than other students. 
+- **H₀:** Students who like to both give presentations and new things will NOT have more friends than other students. 
 
-- **H₁:** Students who like both giving presentations and new things will have more friends than those who do not.
+- **H₁:** Students who like to both give presentations and new things will have more friends than those who do not.
 
 ```{r}
 #| warning: false

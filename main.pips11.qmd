@@ -67,7 +67,8 @@ There are two main section of analyses completed.
    - **Hypotheses:**
      - H₀: Friendship counts and preferences for presentations and new things are not associated with self-reported academic performance.
      - H₁: Students with more friends and who like presentations and new things will tend to report higher academic performance.
-:::
+
+::: 
 
 # Data overview
 
@@ -84,6 +85,34 @@ There are two main section of analyses completed.
 Paste and run the following code to obtain the dataset and add it to the environment under the name "reports". This is important because it will be referred to as "reports" throughout the document.
 ```{r}
 reports <- read.csv("https://zenodo.org/records/10573715/files/CSE_student_performances%20%281%29.csv")
+
+# Error checks for the dataset
+
+stopifnot(exists("reports"))
+
+if (nrow(reports) == 0) {
+  stop("Error: The dataset contains no rows.")
+}
+
+required_columns <- c(
+  "SleepPerDayHours",
+  "AcademicPerformance",
+  "DepressionStatus"
+)
+
+missing_columns <- setdiff(
+  required_columns,
+  names(reports)
+)
+
+if (length(missing_columns) > 0) {
+  stop(
+    paste(
+      "Error: Missing columns:",
+      paste(missing_columns, collapse = ", ")
+    )
+  )
+}
 ```
 
 ## Libraries
@@ -106,6 +135,7 @@ The dropdown menu can be utilized to show the age distribution according to Gend
 The x-axis shows age, whereas the y-axis shows the number of students per age group.
 
 ```{r}
+#| warning: false
 age_data <- reports %>%
   filter(!is.na(Age), !is.na(Gender))
 
@@ -245,7 +275,7 @@ student_demo_plot <- student_demo_plot %>%
 
 student_demo_plot
 ```
-Interpretation: 
+**Interpretation:** 
 the histograms shows the overall distributions of Ages within the sample, and separated by two Gender categories. All students are between the ages of 20 and 26, with the mean being 22.5 for the entire sample, 22.7 for men, and 22.2 for women. The median is 23 for men and the overall student sample, but 22 for women: This shows that while men in this sample are slightly older on average, the difference between the two groups is not substantial.
 
 ### Gender Composition
@@ -297,7 +327,8 @@ ggplot(gender_data,
     axis.text.x = element_text(face = "bold")
   )
 ```
-Interpretation:The gender composition plots highlight that the sample is relatively balanced, and not dominated by either Gender, although there are slightly more male participants.
+**Interpretation:** 
+The gender composition plots highlight that the sample is relatively balanced, and not dominated by either Gender, although there are slightly more male participants.
 
 :::
 
@@ -370,11 +401,12 @@ animated_figure <- plot_ly(
 animated_figure
 
 ```
-Interpretation: The chart indicates that students vary within groups and also between groups in their note taking habits. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking.
+**Interpretation:**
+The chart indicates that students vary within groups and also between groups in their note taking habits. Most interestingly, 100% of students performing below average answer "yes" to taking notes in class, whereas no excellent students answer "yes" to note-taking.
 
 ### Depression Status and Academic Performance
 
-Here we used a stacked bar chart to assess the amount of students per academic performance group within each depression-status category. The bars show the depression-status categories (No, Sometimes, Yes), and the colored contents show the different academic performance groups. Hovering over one of the colored segments will show the number and percnetage of students within.
+Here we used a stacked bar chart to assess the amount of students per academic performance group within each depression-status category. The bars show the depression-status categories (No, Sometimes, Yes), and the colored contents show the different academic performance groups. Hovering over one of the colored segments will show the number and percentage of students within.
 ```{r}
 depression_data <- reports %>%
   filter(
@@ -430,7 +462,8 @@ depression_plot <- plot_ly(
 depression_plot
 
 ```
-Interpretation: The colored segments show that students whose self-reported performance is average, good, or excellent, are represented in all levels of depression to degrees that don't vary drastically. However, the four students performing below average have all indicated "yes" when asked about whether they experience depression. 
+**Interpretation:**
+The colored segments show that students whose self-reported performance is average, good, or excellent, are represented in all levels of depression to degrees that don't vary drastically. However, the four students performing below average have all indicated "yes" when asked about whether they experience depression. 
 
 ### Challenges in completing Academic Tasks
 We included this bar chart to visualize whether students feel challenged in completing academic tasks. The menu can be used to choose whether to display the responses in number of students or percentages.
@@ -513,7 +546,8 @@ challenge_plot <- plot_ly(
 
 challenge_plot
 ```
-Interpretation: The number of students option was incorporated in order to demonstrate how many students selected each answer possibility. The percentages option helps visualize the actual shares of responses. Whether challenges are experienced by students differs between students, but does not differ substantially between levels of challenge.
+**Interpretation:** 
+The number of students option was incorporated in order to demonstrate how many students selected each answer possibility. The percentages option helps visualize the actual shares of responses. Whether challenges are experienced by students differs between students, but does not differ substantially between levels of challenge.
 
 ### Challenges in completing Academic tasks and performance
 The above demonstrated academic task challenges plotted in relation to academic performance.
@@ -629,7 +663,8 @@ plot_ly(
 
 
 ```
-Interpretation: This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the gravest congrast, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
+**Interpretation:** 
+This plot shows how level of challenge experienced differs across academic performance categories. Interestingly, all students performing below average experience challenges most the time. In contrast, none of the excellent performing students indicated any experienced challenges. These two categories show the gravest congrast, whereas the difference in experienced challenges between students indicating "average" or "good" is not as severe, although present, and also showing the pattern that with increasing performance we see decreasing challenges experienced.
 
 :::
 # Analysis 1 - Sleep and Mental Well being
@@ -697,8 +732,6 @@ ggplot(reports, aes(x = SleepPerDayHours)) +
     plot.title = element_text(face = "bold"),
     panel.grid.minor = element_blank()
   )
-
-
 ```
 
 ### What does the distribution show?

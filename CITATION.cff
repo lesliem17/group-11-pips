@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-- family-names: "tbd"
+- family-names: "Prado Nunes"
   given-names: "Rayane"
-- family-names: "tbd"
+- family-names: "Dzanic Arnaez"
   given-names: "Idoia"
 - family-names: "Mauch"
   given-names: "Leslie"
